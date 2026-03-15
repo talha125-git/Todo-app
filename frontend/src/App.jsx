@@ -9,8 +9,7 @@ function App() {
 
   return (
     <>
-    <h1>Todo app</h1>
-    </>
+    <h1 className='bg-black text-white font-bold p-9'>HI</h1></>
   )
 }
 
