@@ -1,15 +1,17 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
+import Navbar from './componants/Navbar'
+import { Route, Routes } from 'react-router-dom'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-    <h1 className='bg-black text-white font-bold p-9'>HI</h1></>
+    <Navbar/>
+    <Routes>
+      <Route path='/' element={<h1>Task List</h1>} />
+      <Route path='/add' element={<h1>Add Task </h1>} />
+    </Routes>
+    </>
   )
 }
 
