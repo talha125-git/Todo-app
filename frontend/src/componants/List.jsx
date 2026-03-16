@@ -46,15 +46,37 @@ const List = () => {
         }
     }
 
+    const DeleteMultiple = async ()=>{
+        console.log(selectedTask);
+
+        let item = await fetch('http://localhost:3200/delete-multiple' ,
+            { 
+                method: 'delete',
+                body:JSON.stringify(selectedTask),
+                headers:{
+                    'Content-Type':'Application/Json'
+                }
+             }
+            );
+        item = await item.json();
+        if (item.success) {
+            getListData();
+        }
+        
+    }
+
     return (
         <div className="min-h-screen bg-gray-100 p-6">
 
-            <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-xl p-6">
+            <div className="max-w-5xl mx-auto space-y-2 bg-white shadow-lg rounded-xl p-6">
 
                 <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
                     Todo List
                 </h1>
 
+                <button
+                onClick={DeleteMultiple}
+                className='bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-md text-sm transition duration-200 cursor-pointer'>Delete</button>
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
 

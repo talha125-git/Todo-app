@@ -72,5 +72,20 @@ app.delete("/delete/:id", async (req,resp)=>{
     }    
 })
 
+app.delete("/delete-multiple", async (req,resp)=>{
+    const db = await connection();
+    const ids = req.body;
+    const deleteTaskIds = ids.map((item)=> new ObjectId(item))
+    console.log(ids);
+    
+    const collection = await db.collection(CollectionName)
+    const result = await collection.deleteMany({_id: {$in:deleteTaskIds}})
+    if (result) {
+        resp.send({message:"task deleted",success:result})
+    }else{
+         resp.send({message:"error try again after sametime",success:false})
+    }    
+})
+
 
 app.listen(3200)
