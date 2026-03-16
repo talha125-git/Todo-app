@@ -1,9 +1,11 @@
 import React from 'react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 
 const AddTask = () => {
 
     const [taskData, setTaskData] = useState();
+    const navigate=useNavigate();
     const HanddleAddTask = async () => {
         console.log(taskData);
         let result = await fetch('http://localhost:3200/add-task', {
@@ -13,6 +15,7 @@ const AddTask = () => {
         })
         result = await result.json()
         if(result){
+            navigate('/')
             console.log("new task Added");
             
         }
