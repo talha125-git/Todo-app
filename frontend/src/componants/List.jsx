@@ -2,68 +2,87 @@ import React, { useEffect, useState } from 'react'
 
 const List = () => {
 
-    const [taskData, setTaskData] = useState([]);
+  const [taskData, setTaskData] = useState([]);
 
-    useEffect(() => {
-        getListData();
-    }, []);
+  useEffect(() => {
+    getListData();
+  }, []);
 
-    const getListData = async () => {
-        let list = await fetch('http://localhost:3200/tasks');
-        list = await list.json();
+  const getListData = async () => {
+    let list = await fetch('http://localhost:3200/tasks');
+    list = await list.json();
 
-        if (list.success) {
-            setTaskData(list.result);
-        }
-    };
+    if (list.success) {
+      setTaskData(list.result);
+    }
+  };
 
-    return (
-        <div className="min-h-screen bg-gray-100 p-6">
+  const deleteTask = async (id) => {
+    let item = await fetch('http://localhost:3200/delete/' + id, { method: 'delete' });
+    item = await item.json();
 
-            <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-xl p-6">
+    if (item.success) {
+      getListData();
+    }
+  };
 
-                <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-                    Todo List
-                </h1>
+  return (
+    <div className="min-h-screen bg-gray-100 p-6">
 
-                <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
+      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-xl p-6">
 
-                        <thead>
-                            <tr className="bg-blue-500 text-white">
-                                <th className="p-3 w-16 border-r text-center">S.No</th>
-                                <th className="p-3 w-48 border-r text-left">Title</th>
-                                <th className="p-3 text-left">Description</th>
-                            </tr>
-                        </thead>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+          Todo List
+        </h1>
 
-                        <tbody>
-                            {taskData && taskData.map((item, index) => (
-                                <tr key={index} className="border-b hover:bg-gray-50">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
 
-                                    <td className="p-3 border-r text-center">
-                                        {index + 1}
-                                    </td>
+            <thead>
+              <tr className="bg-blue-500 text-white">
+                <th className="p-3 w-16 border-r text-center">S.No</th>
+                <th className="p-3 w-40 border-r text-left">Title</th>
+                <th className="p-3 border-r text-left">Description</th>
+                <th className="p-3 w-28 text-right">Action</th>
+              </tr>
+            </thead>
 
-                                    <td className="p-3 border-r font-medium">
-                                        {item.title}
-                                    </td>
+            <tbody>
+              {taskData && taskData.map((item, index) => (
+                <tr key={item._id} className="border-b hover:bg-gray-50">
 
-                                    <td className="p-3 text-gray-600">
-                                        {item.description}
-                                    </td>
+                  <td className="p-3 border-r text-center">
+                    {index + 1}
+                  </td>
 
-                                </tr>
-                            ))}
-                        </tbody>
+                  <td className="p-3 border-r font-medium">
+                    {item.title}
+                  </td>
 
-                    </table>
-                </div>
+                  <td className="p-3 border-r text-gray-600">
+                    {item.description}
+                  </td>
 
-            </div>
+                  <td className="p-3 text-right">
+                    <button
+                      onClick={() => deleteTask(item._id)}
+                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-md text-sm transition duration-200 cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </td>
 
+                </tr>
+              ))}
+            </tbody>
+
+          </table>
         </div>
-    )
+
+      </div>
+
+    </div>
+  )
 }
 
 export default List

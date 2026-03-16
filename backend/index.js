@@ -1,6 +1,7 @@
 import e from "express"
 import cors from 'cors'
 import { CollectionName, connection } from "./dbconfig.js";
+import { ObjectId } from "mongodb";
 
 const app = e();
 
@@ -24,6 +25,18 @@ app.get("/tasks", async (req,resp)=>{
     const result = await collection.find().toArray()
     if (result) {
         resp.send({message:"task list fetched",success:true,result})
+    }else{
+         resp.send({message:"error try again after sametime",success:false})
+    }    
+})
+
+app.delete("/delete/:id", async (req,resp)=>{
+    const db = await connection();
+    const id = req.params.id
+    const collection = await db.collection(CollectionName)
+    const result = await collection.deleteOne({_id: new ObjectId(id)})
+    if (result) {
+        resp.send({message:"task deleted",success:true,result})
     }else{
          resp.send({message:"error try again after sametime",success:false})
     }    
