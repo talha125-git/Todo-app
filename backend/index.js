@@ -30,6 +30,36 @@ app.get("/tasks", async (req,resp)=>{
     }    
 })
 
+// ✅ fixed: changed /tasks/:id to /task/:id (matches frontend fetch)
+app.get("/task/:id", async (req, resp) => {
+    const db = await connection();
+    const id = req.params.id
+    const collection = await db.collection(CollectionName)
+    const result = await collection.findOne({ _id: new ObjectId(id) });
+    if (result) {
+        resp.send({ message: "task fetched", success: true, result })
+    } else {
+        resp.send({ message: "task not found", success: false })
+    }
+})
+
+// ✅ new: PUT route to update task by id
+app.put("/update-task/:id", async (req, resp) => {
+    const db = await connection();
+    const id = req.params.id
+    const { title, description } = req.body // get updated fields from request body
+    const collection = await db.collection(CollectionName)
+    const result = await collection.updateOne(
+        { _id: new ObjectId(id) },        // find task by id
+        { $set: { title, description } }  // update only title and description
+    )
+    if (result.modifiedCount > 0) {
+        resp.send({ message: "task updated", success: true })
+    } else {
+        resp.send({ message: "task not updated", success: false })
+    }
+})
+
 app.delete("/delete/:id", async (req,resp)=>{
     const db = await connection();
     const id = req.params.id
