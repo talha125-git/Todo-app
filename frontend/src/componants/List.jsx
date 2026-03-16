@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 const List = () => {
 
     const [taskData, setTaskData] = useState([]);
+    const [selectedTask, setSelectedTask] = useState([])
 
     useEffect(() => {
         getListData();
@@ -12,7 +13,6 @@ const List = () => {
     const getListData = async () => {
         let list = await fetch('http://localhost:3200/tasks');
         list = await list.json();
-
         if (list.success) {
             setTaskData(list.result);
         }
@@ -21,11 +21,30 @@ const List = () => {
     const deleteTask = async (id) => {
         let item = await fetch('http://localhost:3200/delete/' + id, { method: 'delete' });
         item = await item.json();
-
         if (item.success) {
             getListData();
         }
     };
+
+    const selectAll = (event) => {
+        if (event.target.checked) {
+            let items = taskData.map((item) => item._id) // ✅ fixed: removed curly braces so _id is returned
+            setSelectedTask(items)
+        } else {
+            setSelectedTask([]) // ✅ uncheck all
+        }
+    }
+
+    const selectSingleItem = (id) => {
+        if (selectedTask.includes(id)) {
+            // ✅ remove id if already selected
+            let items = selectedTask.filter((item) => item != id)
+            setSelectedTask(items)
+        } else {
+            // ✅ fixed: wrapped in array brackets
+            setSelectedTask([id, ...selectedTask])
+        }
+    }
 
     return (
         <div className="min-h-screen bg-gray-100 p-6">
@@ -41,6 +60,10 @@ const List = () => {
 
                         <thead>
                             <tr className="bg-blue-500 text-white">
+                                <th className="p-3 w-16 border-r text-center">
+                                    {/* ✅ select all checkbox */}
+                                    <input onChange={selectAll} type="checkbox" />
+                                </th>
                                 <th className="p-3 w-16 border-r text-center">S.No</th>
                                 <th className="p-3 w-40 border-r text-left">Title</th>
                                 <th className="p-3 border-r text-left">Description</th>
@@ -51,6 +74,14 @@ const List = () => {
                         <tbody>
                             {taskData && taskData.map((item, index) => (
                                 <tr key={item._id} className="border-b hover:bg-gray-50">
+
+                                    <td className="p-3 border-r text-center">
+                                        <input
+                                            onChange={() => selectSingleItem(item._id)} // ✅ fixed typo
+                                            checked={selectedTask.includes(item._id)}   // ✅ check if id is in selected list
+                                            type="checkbox"
+                                        />
+                                    </td>
 
                                     <td className="p-3 border-r text-center">
                                         {index + 1}
