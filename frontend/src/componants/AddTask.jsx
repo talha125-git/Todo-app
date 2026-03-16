@@ -30,6 +30,7 @@ const AddTask = () => {
 
                     <button
                         type="submit"
+                        rows={4}
                         className="bg-blue-500 text-white py-2 rounded-md font-medium hover:bg-blue-600 transition duration-200"
                     >
                         Add New Task
