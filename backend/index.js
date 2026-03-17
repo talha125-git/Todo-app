@@ -10,6 +10,7 @@ app.use(e.json());
 app.use(cors());
 
 
+// Sign UP
 app.post("/signup", async (req, resp) => {
     const userData = req.body;
 
@@ -26,13 +27,45 @@ app.post("/signup", async (req, resp) => {
                     token
                 })
             })
+        }else{
+            resp.send({
+            success: false,
+            msg: 'User not found',
+        })
         }
 
     } else {
         resp.send({
             success: false,
             msg: 'Signup failed',
-            token
+        })
+    }
+
+
+// Login
+})
+app.post("/login", async (req, resp) => {
+    const userData = req.body;
+
+    if (userData.email && userData.password) {
+        const db = await connection();
+        const collection = await db.collection('user');
+        const result = await collection.findOne({email:userData.email,password:userData.password})
+
+        if (result) {
+            jwt.sign(userData, 'Google', { expiresIn: '5d' }, (error, token) => {
+                resp.send({
+                    success: true,
+                    msg: 'Login done',
+                    token
+                })
+            })
+        }
+
+    } else {
+        resp.send({
+            success: false,
+            msg: 'Login failed',
         })
     }
 
