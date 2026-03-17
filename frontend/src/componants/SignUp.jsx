@@ -3,7 +3,22 @@ import { Link } from 'react-router-dom'
 
 const SignUp = () => {
 
-    const [userData, setUserData] = useState()
+    const [userData, setUserData] = useState();
+
+    const handleSignUp= async ()=>{
+         console.log(userData);
+        let result = await fetch('http://localhost:3200/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        })
+        result = await result.json()
+        if(result){
+            console.log(result);
+            document.cookie="token="+result.token
+            
+        }
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
@@ -56,7 +71,7 @@ const SignUp = () => {
                     </div>
 
                     <button
-                        onClick={() => console.log(userData)}
+                        onClick={() => handleSignUp()}
                         className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-lg font-medium transition duration-200 cursor-pointer"
                     >
                         Sign Up
