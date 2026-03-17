@@ -78,7 +78,7 @@ app.post("/login", async (req, resp) => {
 
 })
 
-app.post("/add-task", async (req, resp) => {
+app.post("/add-task",verify_JWT_Token, async (req, resp) => {
     const db = await connection();
     const collection = await db.collection(CollectionName)
     const result = await collection.insertOne(req.body)
@@ -101,25 +101,10 @@ app.get("/tasks", verify_JWT_Token, async (req, resp) => {
 })
 
 
-function verify_JWT_Token(req, resp, next) {
-    // console.log("verify_JWT_Token",req.cookies['teken']);
-    jwt.verify(token, 'Google', (error, decoded) => {
-        if (error) {
-            resp.send({
-                msg: "Invalid token",
-                success: false
-            })
-        }
-        console.log(decoded);
-        next()
 
-    })
-
-
-}
 
 // ✅ fixed: changed /tasks/:id to /task/:id (matches frontend fetch)
-app.get("/task/:id", async (req, resp) => {
+app.get("/task/:id",verify_JWT_Token, async (req, resp) => {
     const db = await connection();
     const id = req.params.id
     const collection = await db.collection(CollectionName)
@@ -132,7 +117,7 @@ app.get("/task/:id", async (req, resp) => {
 })
 
 // ✅ new: PUT route to update task by id
-app.put("/update-task/:id", async (req, resp) => {
+app.put("/update-task/:id",verify_JWT_Token, async (req, resp) => {
     const db = await connection();
     const id = req.params.id
     const { title, description } = req.body // get updated fields from request body
@@ -148,7 +133,7 @@ app.put("/update-task/:id", async (req, resp) => {
     }
 })
 
-app.delete("/delete/:id", async (req, resp) => {
+app.delete("/delete/:id",verify_JWT_Token, async (req, resp) => {
     const db = await connection();
     const id = req.params.id
     const collection = await db.collection(CollectionName)
@@ -160,7 +145,7 @@ app.delete("/delete/:id", async (req, resp) => {
     }
 })
 
-app.delete("/delete-multiple", async (req, resp) => {
+app.delete("/delete-multiple",verify_JWT_Token, async (req, resp) => {
     const db = await connection();
     const ids = req.body;
     const deleteTaskIds = ids.map((item) => new ObjectId(item))
@@ -175,5 +160,23 @@ app.delete("/delete-multiple", async (req, resp) => {
     }
 })
 
+
+
+function verify_JWT_Token(req, resp, next) {
+    // console.log("verify_JWT_Token",req.cookies['teken']);
+    jwt.verify(token, 'Google', (error, decoded) => {
+        if (error) {
+            resp.send({
+                msg: "Invalid token",
+                success: false
+            })
+        }
+       
+        next()
+
+    })
+
+
+}
 
 app.listen(3200)

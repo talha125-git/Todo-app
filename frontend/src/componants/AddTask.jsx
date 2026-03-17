@@ -19,6 +19,8 @@ const AddTask = () => {
     if(result.success){ // ✅ check result.success not just result
         console.log("new task Added");
         navigate('/')
+    }else{
+        alert('Try after Sametime time')
     }
 }
 
