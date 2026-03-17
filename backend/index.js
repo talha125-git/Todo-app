@@ -3,12 +3,18 @@ import cors from 'cors'
 import { CollectionName, connection } from "./dbconfig.js";
 import { ObjectId } from "mongodb";
 import jwt from 'jsonwebtoken';
+import cookieParser from "cookie-parser";
 
 const app = e();
 
 app.use(e.json());
 app.use(cors());
+app.use(cookieParser());
 
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}))
 
 // Sign UP
 app.post("/signup", async (req, resp) => {
@@ -27,11 +33,11 @@ app.post("/signup", async (req, resp) => {
                     token
                 })
             })
-        }else{
+        } else {
             resp.send({
-            success: false,
-            msg: 'User not found',
-        })
+                success: false,
+                msg: 'User not found',
+            })
         }
 
     } else {
@@ -42,7 +48,7 @@ app.post("/signup", async (req, resp) => {
     }
 
 
-// Login
+    // Login
 })
 app.post("/login", async (req, resp) => {
     const userData = req.body;
@@ -50,7 +56,7 @@ app.post("/login", async (req, resp) => {
     if (userData.email && userData.password) {
         const db = await connection();
         const collection = await db.collection('user');
-        const result = await collection.findOne({email:userData.email,password:userData.password})
+        const result = await collection.findOne({ email: userData.email, password: userData.password })
 
         if (result) {
             jwt.sign(userData, 'Google', { expiresIn: '5d' }, (error, token) => {
@@ -84,7 +90,7 @@ app.post("/add-task", async (req, resp) => {
     }
 })
 
-app.get("/tasks", async (req, resp) => {
+app.get("/tasks", verify_JWT_Token, async (req, resp) => {
     const db = await connection();
     const collection = await db.collection(CollectionName)
     const result = await collection.find().toArray()
@@ -94,6 +100,28 @@ app.get("/tasks", async (req, resp) => {
         resp.send({ message: "error try again after sametime", success: false })
     }
 })
+
+
+function verify_JWT_Token(req, resp, next) {
+
+    const token = req.cookies['token'] // ✅ get token from cookies
+    // if no token found, block the request
+    if (!token) {
+        return resp.send({
+            msg: "No token provided",
+            success: false
+        })
+    }
+    jwt.verify(token, 'Google', (error, decoded) => {
+        if (error) {
+            return resp.send({
+                msg: "Invalid token",
+                success: false
+            })
+        }
+        next()
+    })
+}
 
 // ✅ fixed: changed /tasks/:id to /task/:id (matches frontend fetch)
 app.get("/task/:id", async (req, resp) => {

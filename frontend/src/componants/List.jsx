@@ -11,7 +11,9 @@ const List = () => {
     }, []);
 
     const getListData = async () => {
-        let list = await fetch('http://localhost:3200/tasks');
+        let list = await fetch('http://localhost:3200/tasks',{
+            credentials:'include'
+        });
         list = await list.json();
         if (list.success) {
             setTaskData(list.result);
