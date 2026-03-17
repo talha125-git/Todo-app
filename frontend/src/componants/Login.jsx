@@ -1,10 +1,17 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom';
 
 const Login = () => {
 
     const [userData,setUserData]=useState();
+    const Navigate = useNavigate()
 
+    useEffect(()=>{
+        if(localStorage.getItem('login')){
+            Navigate('/')
+        }
+    })
 
      const handleLogin= async ()=>{
          console.log(userData);
@@ -14,10 +21,13 @@ const Login = () => {
             body: JSON.stringify(userData)
         })
         result = await result.json()
-        if(result){
-            console.log(result);
+        if(result.success){
             document.cookie="token="+result.token
+            localStorage.setItem('login',userData.email)
+            Navigate('/')
             
+        }else{
+            alert('try after sametime')
         }
     }
 

@@ -6,20 +6,21 @@ const AddTask = () => {
 
     const [taskData, setTaskData] = useState();
     const navigate=useNavigate();
+   
     const HanddleAddTask = async () => {
-        console.log(taskData);
-        let result = await fetch('http://localhost:3200/add-task', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(taskData)
-        })
-        result = await result.json()
-        if(result){
-            navigate('/')
-            console.log("new task Added");
-            
-        }
+    console.log(taskData);
+    let result = await fetch('http://localhost:3200/add-task', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // ✅ this sends the token cookie to backend
+        body: JSON.stringify(taskData)
+    })
+    result = await result.json()
+    if(result.success){ // ✅ check result.success not just result
+        console.log("new task Added");
+        navigate('/')
     }
+}
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">

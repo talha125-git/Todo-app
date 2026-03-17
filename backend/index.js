@@ -8,7 +8,6 @@ import cookieParser from "cookie-parser";
 const app = e();
 
 app.use(e.json());
-app.use(cors());
 app.use(cookieParser());
 
 app.use(cors({
@@ -103,24 +102,20 @@ app.get("/tasks", verify_JWT_Token, async (req, resp) => {
 
 
 function verify_JWT_Token(req, resp, next) {
-
-    const token = req.cookies['token'] // ✅ get token from cookies
-    // if no token found, block the request
-    if (!token) {
-        return resp.send({
-            msg: "No token provided",
-            success: false
-        })
-    }
+    // console.log("verify_JWT_Token",req.cookies['teken']);
     jwt.verify(token, 'Google', (error, decoded) => {
         if (error) {
-            return resp.send({
+            resp.send({
                 msg: "Invalid token",
                 success: false
             })
         }
+        console.log(decoded);
         next()
+
     })
+
+
 }
 
 // ✅ fixed: changed /tasks/:id to /task/:id (matches frontend fetch)

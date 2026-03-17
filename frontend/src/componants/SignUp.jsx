@@ -1,22 +1,36 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Navigate } from 'react-router-dom';
 
 const SignUp = () => {
 
     const [userData, setUserData] = useState();
 
-    const handleSignUp= async ()=>{
-         console.log(userData);
+    const Navigate = useNavigate()
+
+    useEffect(() => {
+        if (localStorage.getItem('login')) {
+            Navigate('/')
+        }
+    })
+
+    const handleSignUp = async () => {
+        console.log(userData);
         let result = await fetch('http://localhost:3200/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData)
         })
         result = await result.json()
-        if(result){
+        if (result.success) {
             console.log(result);
-            document.cookie="token="+result.token
-            
+            document.cookie = "token=" + result.token
+
+            localStorage.setItem('login', userData.email)
+            Navigate('/')
+
+        } else {
+            alert('try after sametime')
         }
     }
 

@@ -25,6 +25,7 @@ const UpdateTask = () => {
         let result = await fetch('http://localhost:3200/update-task/' + id, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include', // ✅ add this
             body: JSON.stringify(taskData)
         });
         result = await result.json();

@@ -7,14 +7,15 @@ import List from './componants/List'
 import UpdateTask from './componants/UpdateTask'
 import SignUp from './componants/SignUp'
 import Login from './componants/Login'
+import Protected from './componants/Protected'
 
 function App() {
   return (
     <>
     <Navbar/>
     <Routes>
-      <Route path='/' element={<List/>} />
-      <Route path='/add' element={<AddTask/>} />
+      <Route path='/' element={ <Protected ><List/></Protected> } />
+      <Route path='/add' element={<Protected><AddTask/></Protected>} />
       <Route path='/update/:id' element={<UpdateTask/>} />
       <Route path='/signup' element={<SignUp/>} />
       <Route path='/login' element={<Login/>} />
