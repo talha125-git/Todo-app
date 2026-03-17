@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Navigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'
 
 const SignUp = () => {
 
@@ -8,31 +7,34 @@ const SignUp = () => {
 
     const Navigate = useNavigate()
 
-    useEffect(() => {
-        if (localStorage.getItem('login')) {
-            Navigate('/')
-        }
-    })
+   useEffect(() => {
+    if (localStorage.getItem('login')) navigate('/')
+}, [])  // ✅ add empty array
 
     const handleSignUp = async () => {
-        console.log(userData);
+    console.log("Trying to connect to:", 'http://localhost:3200/signup');
+    try {
         let result = await fetch('http://localhost:3200/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData)
+            body: JSON.stringify(userData),
+            credentials: 'include'
         })
         result = await result.json()
+        console.log("Signup response:", result);
         if (result.success) {
-            console.log(result);
-            document.cookie = "token=" + result.token
-
+            document.cookie = "token=" + result.token + "; path=/; SameSite=Lax"
             localStorage.setItem('login', userData.email)
+            window.dispatchEvent(new Event('localStorage-change'))
             Navigate('/')
-
         } else {
-            alert('try after sametime')
+            alert('Signup failed: ' + result.msg)
         }
+    } catch (error) {
+        console.error("Signup error:", error.message); // ✅ shows exact error
+        alert('Error: ' + error.message)              // ✅ shows in browser too
     }
+}
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">

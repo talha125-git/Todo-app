@@ -13,13 +13,13 @@ const UpdateTask = () => {
         getTask(id)
     }, [])
 
-    const getTask = async (id) => {
-        let task = await fetch('http://localhost:3200/task/' + id);
-        task = await task.json()
-        if (task.success) {
-            setTaskData(task.result)
-        }
-    }
+   const getTask = async (id) => {
+    let task = await fetch('http://localhost:3200/task/' + id, {
+        credentials: 'include'  // ✅ add this
+    });
+    task = await task.json()
+    if (task.success) setTaskData(task.result)
+}
 
     const handleUpdate = async () => {
         let result = await fetch('http://localhost:3200/update-task/' + id, {

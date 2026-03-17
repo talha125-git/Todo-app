@@ -10,7 +10,7 @@ const Navbar = () => {
     setLogin(null)
     setTimeout(() => {
       navigatE('/login')
-    }, o);
+    }, 0);
   }
 
   useEffect(() => {
@@ -46,20 +46,22 @@ const Navbar = () => {
 
                 <li>
                   <Link
+                    to="/add"
+                    className="hover:text-blue-400  rounded-md transition duration-200"
+                  >
+                    Add Task
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
                     onClick={logout}
                     className="bg-blue-500 hover:bg-blue-600 px-4 py-1.5 rounded-md transition duration-200"
                   >
                     Log out
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    to="/add"
-                    className="bg-blue-500 hover:bg-blue-600 px-4 py-1.5 rounded-md transition duration-200"
-                  >
-                    Add Task
-                  </Link>
-                </li>
+                
 
               </> : null
           }

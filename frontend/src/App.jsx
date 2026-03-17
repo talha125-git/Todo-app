@@ -16,7 +16,7 @@ function App() {
     <Routes>
       <Route path='/' element={ <Protected ><List/></Protected> } />
       <Route path='/add' element={<Protected><AddTask/></Protected>} />
-      <Route path='/update/:id' element={<UpdateTask/>} />
+      <Route path='/update/:id' element={<Protected><UpdateTask/></Protected>} />
       <Route path='/signup' element={<SignUp/>} />
       <Route path='/login' element={<Login/>} />
     </Routes>

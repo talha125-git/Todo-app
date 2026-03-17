@@ -1,3 +1,3 @@
 git add .
-git commit -m "Verify JWT with APIs"
+git commit -m "Solved All bugs and error "
 git push -u origin main   

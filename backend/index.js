@@ -1,3 +1,8 @@
+process.on('uncaughtException', (err) => {
+    console.error('UNCAUGHT EXCEPTION:', err.message);
+    console.error(err.stack);
+});
+
 import e from "express"
 import cors from 'cors'
 import { CollectionName, connection } from "./dbconfig.js";
@@ -11,7 +16,7 @@ app.use(e.json());
 app.use(cookieParser());
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173"],
     credentials: true
 }))
 
@@ -58,20 +63,12 @@ app.post("/login", async (req, resp) => {
         const result = await collection.findOne({ email: userData.email, password: userData.password })
 
         if (result) {
-            jwt.sign(userData, 'Google', { expiresIn: '5d' }, (error, token) => {
-                resp.send({
-                    success: true,
-                    msg: 'Login done',
-                    token
-                })
-            })
-        }
-
-    } else {
-        resp.send({
-            success: false,
-            msg: 'Login failed',
+        jwt.sign(userData, 'Google', { expiresIn: '5d' }, (error, token) => {
+            resp.send({ success: true, msg: 'Login done', token })
         })
+    } else {
+        resp.send({ success: false, msg: 'Invalid email or password' }) // ✅ add this
+    }
     }
 
 
@@ -163,20 +160,28 @@ app.delete("/delete-multiple",verify_JWT_Token, async (req, resp) => {
 
 
 function verify_JWT_Token(req, resp, next) {
-    // console.log("verify_JWT_Token",req.cookies['teken']);
+    // Read token from cookie (set by frontend via document.cookie)
+    const token = req.cookies['token'];
+
+    if (!token) {
+        return resp.send({
+            msg: "No token provided",
+            success: false
+        });
+    }
+
     jwt.verify(token, 'Google', (error, decoded) => {
         if (error) {
-            resp.send({
+            return resp.send({
                 msg: "Invalid token",
                 success: false
-            })
+            });
         }
-       
-        next()
-
-    })
-
-
+        req.user = decoded;
+        next();
+    });
 }
 
-app.listen(3200)
+app.listen(3200, () => {
+    console.log('✅ Backend server running on http://localhost:3200');
+})

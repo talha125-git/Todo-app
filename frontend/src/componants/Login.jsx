@@ -1,35 +1,39 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Navigate } from 'react-router-dom';
 
 const Login = () => {
 
     const [userData,setUserData]=useState();
-    const Navigate = useNavigate()
-
-    useEffect(()=>{
-        if(localStorage.getItem('login')){
-            Navigate('/')
-        }
-    })
+    const navigate = useNavigate()  
+    
+    useEffect(() => {
+    if (localStorage.getItem('login')) navigate('/')
+}, [])  // ✅ add empty array
 
      const handleLogin= async ()=>{
          console.log(userData);
-        let result = await fetch('http://localhost:3200/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData)
-        })
-        result = await result.json()
-        if(result.success){
-            document.cookie="token="+result.token
-            localStorage.setItem('login',userData.email)
-            window.dispatchEvent(new Event('localStorage-change'))
-            Navigate('/')
-            
-        }else{
-            alert('try after sametime')
-        }
+         try {
+             let result = await fetch('http://localhost:3200/login', {
+                 method: 'POST',
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify(userData),
+                 credentials: 'include'
+             })
+             result = await result.json()
+             console.log("Login response:", result);
+             if(result.success){
+                 document.cookie = "token=" + result.token + "; path=/; SameSite=Lax"
+                 localStorage.setItem('login',userData.email)
+                 window.dispatchEvent(new Event('localStorage-change'))
+                 navigate('/')
+                 
+             }else{
+                 alert('Login failed: ' + result.msg)
+             }
+         } catch (error) {
+             console.error("Login error:", error);
+             alert('Could not connect to server')
+         }
     }
 
 

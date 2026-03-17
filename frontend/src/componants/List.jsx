@@ -15,6 +15,7 @@ const List = () => {
             credentials:'include'
         });
         list = await list.json();
+        console.log("Tasks response:", list);
         if (list.success) {
             setTaskData(list.result);
         }else{
