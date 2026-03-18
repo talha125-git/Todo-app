@@ -15,7 +15,7 @@ app.use(cookieParser());
 app.use(cors({
     origin: [
         "http://localhost:5173",
-        process.env.FRONTEND_URL  // add your vercel frontend url in .env
+        process.env.FRONTEND_URL
     ],
     credentials: true
 }))
@@ -28,7 +28,6 @@ app.post("/signup", async (req, resp) => {
         const db = await connection();
         const collection = await db.collection('user');
 
-        // check if email already exists
         const existing = await collection.findOne({ email: userData.email });
         if (existing) {
             return resp.send({ success: false, msg: 'Email already registered' });
@@ -38,24 +37,20 @@ app.post("/signup", async (req, resp) => {
 
         if (result) {
             jwt.sign(userData, JWT_SECRET, { expiresIn: '5d' }, (error, token) => {
-                resp.send({
-                    success: true,
-                    msg: 'Signup done',
-                    token
+                resp.cookie('token', token, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'None',
+                    maxAge: 5 * 24 * 60 * 60 * 1000
                 })
+                resp.send({ success: true, msg: 'Signup done', token })
             })
         } else {
-            resp.send({
-                success: false,
-                msg: 'Signup failed',
-            })
+            resp.send({ success: false, msg: 'Signup failed' })
         }
 
     } else {
-        resp.send({
-            success: false,
-            msg: 'Email and password required',
-        })
+        resp.send({ success: false, msg: 'Email and password required' })
     }
 })
 
@@ -70,6 +65,12 @@ app.post("/login", async (req, resp) => {
 
         if (result) {
             jwt.sign(userData, JWT_SECRET, { expiresIn: '5d' }, (error, token) => {
+                resp.cookie('token', token, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'None',
+                    maxAge: 5 * 24 * 60 * 60 * 1000
+                })
                 resp.send({ success: true, msg: 'Login done', token })
             })
         } else {

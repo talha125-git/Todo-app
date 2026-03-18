@@ -23,7 +23,7 @@ const SignUp = () => {
         result = await result.json()
         console.log("Signup response:", result);
         if (result.success) {
-            document.cookie = "token=" + result.token + "; path=/; SameSite=Lax"
+            
             localStorage.setItem('login', userData.email)
             window.dispatchEvent(new Event('localStorage-change'))
             Navigate('/')
