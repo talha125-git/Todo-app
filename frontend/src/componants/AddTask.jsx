@@ -2,27 +2,30 @@ import React from 'react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 
+const getToken = () => localStorage.getItem('authToken')
+
 const AddTask = () => {
 
     const [taskData, setTaskData] = useState();
-    const navigate=useNavigate();
-   
+    const navigate = useNavigate();
+
     const HanddleAddTask = async () => {
-    console.log(taskData);
-    let result = await fetch(import.meta.env.VITE_API_URL + '/add-task', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // ✅ this sends the token cookie to backend
-        body: JSON.stringify(taskData)
-    })
-    result = await result.json()
-    if(result.success){ // ✅ check result.success not just result
-        console.log("new task Added");
-        navigate('/')
-    }else{
-        alert('Try after Sametime time')
+        let result = await fetch(import.meta.env.VITE_API_URL + '/add-task', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getToken()
+            },
+            credentials: 'include',
+            body: JSON.stringify(taskData)
+        })
+        result = await result.json()
+        if (result.success) {
+            navigate('/')
+        } else {
+            alert('Try after Sametime time')
+        }
     }
-}
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
@@ -32,7 +35,7 @@ const AddTask = () => {
 
                 <section className="flex flex-col gap-4">
                     <div className="flex flex-col">
-                        <label className="text-sm font-medium text-gray-700 mb-1">  Title </label>
+                        <label className="text-sm font-medium text-gray-700 mb-1"> Title </label>
                         <input
                             onChange={(event) => setTaskData({ ...taskData, title: event.target.value })}
                             type="text"

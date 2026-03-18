@@ -22,11 +22,11 @@ const Login = () => {
       result = await result.json()
       console.log("Login response:", result);
       if (result.success) {
+        localStorage.setItem('authToken', result.token)  // ✅ add this
         localStorage.setItem('login', userData.email)
-        localStorage.setItem('userName', result.userName)  // ✅ save name
+        localStorage.setItem('userName', result.userName)
         window.dispatchEvent(new Event('localStorage-change'))
         navigate('/')
-        
       } else {
         alert('Login failed: ' + result.msg)
       }

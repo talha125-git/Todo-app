@@ -1,36 +1,42 @@
 import React from 'react'
 import { useEffect } from 'react';
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'; // ✅ added useNavigate
+import { useParams, useNavigate } from 'react-router-dom';
+
+const getToken = () => localStorage.getItem('authToken')
 
 const UpdateTask = () => {
 
     const [taskData, setTaskData] = useState();
     const { id } = useParams();
-    const navigate = useNavigate(); // ✅ initialize navigate
+    const navigate = useNavigate();
 
     useEffect(() => {
         getTask(id)
     }, [])
 
-   const getTask = async (id) => {
-    let task = await fetch(import.meta.env.VITE_API_URL + '/task/' + id,  {
-        credentials: 'include'  // ✅ add this
-    });
-    task = await task.json()
-    if (task.success) setTaskData(task.result)
-}
+    const getTask = async (id) => {
+        let task = await fetch(import.meta.env.VITE_API_URL + '/task/' + id, {
+            credentials: 'include',
+            headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
+        task = await task.json()
+        if (task.success) setTaskData(task.result)
+    }
 
     const handleUpdate = async () => {
         let result = await fetch(import.meta.env.VITE_API_URL + '/update-task/' + id, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include', // ✅ add this
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getToken()
+            },
+            credentials: 'include',
             body: JSON.stringify(taskData)
         });
         result = await result.json();
         if (result.success) {
-            navigate('/'); // ✅ go to list page after update
+            navigate('/');
         }
     }
 

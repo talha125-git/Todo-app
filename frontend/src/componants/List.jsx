@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 
+const getToken = () => localStorage.getItem('authToken')
+
 const List = () => {
 
     const [taskData, setTaskData] = useState([]);
@@ -11,69 +13,66 @@ const List = () => {
     }, []);
 
     const getListData = async () => {
-        let list = await fetch(import.meta.env.VITE_API_URL + '/tasks',{
-            credentials:'include'
+        let list = await fetch(import.meta.env.VITE_API_URL + '/tasks', {
+            credentials: 'include',
+            headers: { 'Authorization': 'Bearer ' + getToken() }
         });
         list = await list.json();
-        console.log("Tasks response:", list);
         if (list.success) {
             setTaskData(list.result);
-        }else{
+        } else {
             alert("Try after sametime")
         }
     };
 
     const deleteTask = async (id) => {
-        let item = await fetch(import.meta.env.VITE_API_URL + '/delete/' + id, { method: 'delete', credentials: 'include', });
-        
+        let item = await fetch(import.meta.env.VITE_API_URL + '/delete/' + id, {
+            method: 'delete',
+            credentials: 'include',
+            headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
         item = await item.json();
         if (item.success) {
             getListData();
-        }else{
+        } else {
             alert("Try after sametime")
         }
     };
 
     const selectAll = (event) => {
         if (event.target.checked) {
-            let items = taskData.map((item) => item._id) // ✅ fixed: removed curly braces so _id is returned
+            let items = taskData.map((item) => item._id)
             setSelectedTask(items)
         } else {
-            setSelectedTask([]) // ✅ uncheck all
+            setSelectedTask([])
         }
     }
 
     const selectSingleItem = (id) => {
         if (selectedTask.includes(id)) {
-            // ✅ remove id if already selected
             let items = selectedTask.filter((item) => item != id)
             setSelectedTask(items)
         } else {
-            // ✅ fixed: wrapped in array brackets
             setSelectedTask([id, ...selectedTask])
         }
     }
 
-    const DeleteMultiple = async ()=>{
-        console.log(selectedTask);
-
-        let item = await fetch(import.meta.env.VITE_API_URL + '/delete-multiple',
-            { 
-                credentials: 'include',
-                method: 'delete',
-                body:JSON.stringify(selectedTask),
-                headers:{
-                    'Content-Type':'Application/Json'
-                }
-             }
-            );
+    const DeleteMultiple = async () => {
+        let item = await fetch(import.meta.env.VITE_API_URL + '/delete-multiple', {
+            credentials: 'include',
+            method: 'delete',
+            body: JSON.stringify(selectedTask),
+            headers: {
+                'Content-Type': 'Application/Json',
+                'Authorization': 'Bearer ' + getToken()
+            }
+        });
         item = await item.json();
         if (item.success) {
             getListData();
-        }else{
+        } else {
             alert("Try after sametime")
         }
-        
     }
 
     return (
@@ -86,15 +85,14 @@ const List = () => {
                 </h1>
 
                 <button
-                onClick={DeleteMultiple}
-                className='bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-md text-sm transition duration-200 cursor-pointer'>Delete</button>
+                    onClick={DeleteMultiple}
+                    className='bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-md text-sm transition duration-200 cursor-pointer'>Delete</button>
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
 
                         <thead>
                             <tr className="bg-blue-500 text-white">
                                 <th className="p-3 w-16 border-r text-center">
-                                    {/* ✅ select all checkbox */}
                                     <input onChange={selectAll} type="checkbox" />
                                 </th>
                                 <th className="p-3 w-16 border-r text-center">S.No</th>
@@ -110,8 +108,8 @@ const List = () => {
 
                                     <td className="p-3 border-r text-center">
                                         <input
-                                            onChange={() => selectSingleItem(item._id)} // ✅ fixed typo
-                                            checked={selectedTask.includes(item._id)}   // ✅ check if id is in selected list
+                                            onChange={() => selectSingleItem(item._id)}
+                                            checked={selectedTask.includes(item._id)}
                                             type="checkbox"
                                         />
                                     </td>

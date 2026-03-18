@@ -23,11 +23,11 @@ const SignUp = () => {
             result = await result.json()
             console.log("Signup response:", result);
             if (result.success) {
+                localStorage.setItem('authToken', result.token)  // ✅ add this
                 localStorage.setItem('login', userData.email)
-                localStorage.setItem('userName', userData.name)  // ✅ save name from form
+                localStorage.setItem('userName', userData.name)
                 window.dispatchEvent(new Event('localStorage-change'))
                 Navigate('/')
-                
             } else {
                 alert('Signup failed: ' + result.msg)
             }

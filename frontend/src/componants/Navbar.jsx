@@ -11,13 +11,14 @@ const Navbar = () => {
 
   const logout = () => {
     localStorage.removeItem('login')
-    localStorage.removeItem('userName')  // ✅ clear name on logout
+    localStorage.removeItem('userName')
+    localStorage.removeItem('authToken')  // ✅ add this
     setLogin(null)
     setUserName(null)
     setTimeout(() => {
-      navigatE('/login')
+        navigatE('/login')
     }, 0);
-  }
+}
 
   useEffect(() => {
     const handleStorage = () => {
