@@ -1,3 +1,3 @@
 git add .
-git commit -m "fix tasks filtered by user"
+git commit -m "show username in navbar"
 git push -u origin main 

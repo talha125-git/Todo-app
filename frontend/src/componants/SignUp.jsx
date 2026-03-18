@@ -7,34 +7,35 @@ const SignUp = () => {
 
     const Navigate = useNavigate()
 
-   useEffect(() => {
-    if (localStorage.getItem('login')) navigate('/')
-}, [])  // ✅ add empty array
+    useEffect(() => {
+        if (localStorage.getItem('login')) navigate('/')
+    }, [])  // ✅ add empty array
 
     const handleSignUp = async () => {
-    console.log("Trying to connect to:", import.meta.env.VITE_API_URL + '/signup',);
-    try {
-        let result = await fetch(import.meta.env.VITE_API_URL + '/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData),
-            credentials: 'include'
-        })
-        result = await result.json()
-        console.log("Signup response:", result);
-        if (result.success) {
-            
-            localStorage.setItem('login', userData.email)
-            window.dispatchEvent(new Event('localStorage-change'))
-            Navigate('/')
-        } else {
-            alert('Signup failed: ' + result.msg)
+        console.log("Trying to connect to:", import.meta.env.VITE_API_URL + '/signup',);
+        try {
+            let result = await fetch(import.meta.env.VITE_API_URL + '/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData),
+                credentials: 'include'
+            })
+            result = await result.json()
+            console.log("Signup response:", result);
+            if (result.success) {
+                localStorage.setItem('login', userData.email)
+                localStorage.setItem('userName', userData.name)  // ✅ save name from form
+                window.dispatchEvent(new Event('localStorage-change'))
+                Navigate('/')
+                
+            } else {
+                alert('Signup failed: ' + result.msg)
+            }
+        } catch (error) {
+            console.error("Signup error:", error.message); // ✅ shows exact error
+            alert('Error: ' + error.message)              // ✅ shows in browser too
         }
-    } catch (error) {
-        console.error("Signup error:", error.message); // ✅ shows exact error
-        alert('Error: ' + error.message)              // ✅ shows in browser too
     }
-}
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">

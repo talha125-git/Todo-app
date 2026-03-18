@@ -71,9 +71,14 @@ app.post("/login", async (req, resp) => {
                     sameSite: 'None',
                     maxAge: 5 * 24 * 60 * 60 * 1000
                 })
-                resp.send({ success: true, msg: 'Login done', token })
+                resp.send({
+                    success: true,
+                    msg: 'Login done',
+                    token,
+                    userName: result.name  // ✅ send name from DB
+                })
             })
-        } else {
+        }  else {
             resp.send({ success: false, msg: 'Invalid email or password' })
         }
     } else {

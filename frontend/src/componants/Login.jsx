@@ -3,38 +3,38 @@ import { Link, useNavigate } from 'react-router-dom'
 
 const Login = () => {
 
-    const [userData,setUserData]=useState();
-    const navigate = useNavigate()  
-    
-    useEffect(() => {
-    if (localStorage.getItem('login')) navigate('/')
-}, [])  // ✅ add empty array
+  const [userData, setUserData] = useState();
+  const navigate = useNavigate()
 
-     const handleLogin= async ()=>{
-         console.log(userData);
-         try {
-             let result = await fetch(import.meta.env.VITE_API_URL + '/login',  {
-                 method: 'POST',
-                 headers: { 'Content-Type': 'application/json' },
-                 body: JSON.stringify(userData),
-                 credentials: 'include'
-             })
-             result = await result.json()
-             console.log("Login response:", result);
-             if(result.success){
-                 
-                 localStorage.setItem('login',userData.email)
-                 window.dispatchEvent(new Event('localStorage-change'))
-                 navigate('/')
-                 
-             }else{
-                 alert('Login failed: ' + result.msg)
-             }
-         } catch (error) {
-             console.error("Login error:", error);
-             alert('Could not connect to server')
-         }
+  useEffect(() => {
+    if (localStorage.getItem('login')) navigate('/')
+  }, [])  // ✅ add empty array
+
+  const handleLogin = async () => {
+    console.log(userData);
+    try {
+      let result = await fetch(import.meta.env.VITE_API_URL + '/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+        credentials: 'include'
+      })
+      result = await result.json()
+      console.log("Login response:", result);
+      if (result.success) {
+        localStorage.setItem('login', userData.email)
+        localStorage.setItem('userName', result.userName)  // ✅ save name
+        window.dispatchEvent(new Event('localStorage-change'))
+        navigate('/')
+        
+      } else {
+        alert('Login failed: ' + result.msg)
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert('Could not connect to server')
     }
+  }
 
 
   return (
@@ -57,7 +57,7 @@ const Login = () => {
               Email
             </label>
             <input
-              onChange={(event)=>setUserData({...userData,email:event.target.value})}
+              onChange={(event) => setUserData({ ...userData, email: event.target.value })}
               type="text"
               name="email"
               placeholder="Enter email"
@@ -70,7 +70,7 @@ const Login = () => {
               Password
             </label>
             <input
-              onChange={(event)=>setUserData({...userData,password:event.target.value})}
+              onChange={(event) => setUserData({ ...userData, password: event.target.value })}
               type="text"
               name="password"
               placeholder="Enter password"
@@ -87,8 +87,8 @@ const Login = () => {
 
           <p className="text-center text-sm text-gray-600">
             Don’t have an account?{" "}
-            <Link 
-              to='/signup' 
+            <Link
+              to='/signup'
               className="text-blue-600 hover:underline font-medium"
             >
               Sign Up
