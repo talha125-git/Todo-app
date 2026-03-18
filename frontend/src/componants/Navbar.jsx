@@ -44,7 +44,7 @@ const Navbar = () => {
               <>
                 {/* ✅ show user name here */}
                 <li className="text-gray-300">
-                  👋 {userName || login}
+                  Hi, {userName || login}
                 </li>
 
                 <li>
