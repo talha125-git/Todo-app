@@ -14,7 +14,7 @@ const UpdateTask = () => {
     }, [])
 
    const getTask = async (id) => {
-    let task = await fetch('http://localhost:3200/task/' + id, {
+    let task = await fetch(import.meta.env.VITE_API_URL + '/task/' + id,  {
         credentials: 'include'  // ✅ add this
     });
     task = await task.json()
@@ -22,7 +22,7 @@ const UpdateTask = () => {
 }
 
     const handleUpdate = async () => {
-        let result = await fetch('http://localhost:3200/update-task/' + id, {
+        let result = await fetch(import.meta.env.VITE_API_URL + '/update-task/' + id, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include', // ✅ add this

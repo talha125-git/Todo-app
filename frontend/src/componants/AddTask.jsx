@@ -9,7 +9,7 @@ const AddTask = () => {
    
     const HanddleAddTask = async () => {
     console.log(taskData);
-    let result = await fetch('http://localhost:3200/add-task', {
+    let result = await fetch(import.meta.env.VITE_API_URL + '/add-task', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // ✅ this sends the token cookie to backend

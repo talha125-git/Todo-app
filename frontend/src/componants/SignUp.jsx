@@ -12,9 +12,9 @@ const SignUp = () => {
 }, [])  // ✅ add empty array
 
     const handleSignUp = async () => {
-    console.log("Trying to connect to:", 'http://localhost:3200/signup');
+    console.log("Trying to connect to:", import.meta.env.VITE_API_URL + '/signup',);
     try {
-        let result = await fetch('http://localhost:3200/signup', {
+        let result = await fetch(import.meta.env.VITE_API_URL + '/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData),
