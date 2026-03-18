@@ -13,12 +13,9 @@ const List = () => {
     }, []);
 
     const getListData = async () => {
-        const token = localStorage.getItem('authToken')
-        alert("List token: " + token)
-
         let list = await fetch(import.meta.env.VITE_API_URL + '/tasks', {
             credentials: 'include',
-            headers: { 'Authorization': 'Bearer ' + token }
+            headers: { 'Authorization': 'Bearer ' + getToken() }
         });
         list = await list.json();
         if (list.success) {

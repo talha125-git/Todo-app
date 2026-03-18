@@ -168,6 +168,7 @@ app.delete("/delete-multiple", verify_JWT_Token, async (req, resp) => {
 function verify_JWT_Token(req, resp, next) {
     const token = req.cookies['token'] || req.headers['authorization']?.split(' ')[1];
 
+
     if (!token) {
         return resp.send({ msg: "No token provided", success: false });
     }
