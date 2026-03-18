@@ -1,3 +1,3 @@
 git add .
-git commit -m "fix cookie for production"
+git commit -m "fix tasks filtered by user"
 git push -u origin main 

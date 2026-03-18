@@ -84,7 +84,11 @@ app.post("/login", async (req, resp) => {
 app.post("/add-task", verify_JWT_Token, async (req, resp) => {
     const db = await connection();
     const collection = await db.collection(CollectionName)
-    const result = await collection.insertOne(req.body)
+    const taskData = {
+        ...req.body,
+        userEmail: req.user.email  // ✅ save which user owns this task
+    }
+    const result = await collection.insertOne(taskData)
     if (result) {
         resp.send({ message: "new task added", success: true, result })
     } else {
@@ -95,7 +99,7 @@ app.post("/add-task", verify_JWT_Token, async (req, resp) => {
 app.get("/tasks", verify_JWT_Token, async (req, resp) => {
     const db = await connection();
     const collection = await db.collection(CollectionName)
-    const result = await collection.find().toArray()
+    const result = await collection.find({ userEmail: req.user.email }).toArray() // ✅ filter by user
     if (result) {
         resp.send({ message: "task list fetched", success: true, result })
     } else {
