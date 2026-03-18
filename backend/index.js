@@ -1,8 +1,4 @@
-process.on('uncaughtException', (err) => {
-    console.error('UNCAUGHT EXCEPTION:', err.message);
-    console.error(err.stack);
-});
-
+import 'dotenv/config'
 import e from "express"
 import cors from 'cors'
 import { CollectionName, connection } from "./dbconfig.js";
@@ -11,12 +7,16 @@ import jwt from 'jsonwebtoken';
 import cookieParser from "cookie-parser";
 
 const app = e();
+const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(e.json());
 app.use(cookieParser());
 
 app.use(cors({
-    origin: ["http://localhost:5173"],
+    origin: [
+        "http://localhost:5173",
+        process.env.FRONTEND_URL  // add your vercel frontend url in .env
+    ],
     credentials: true
 }))
 
@@ -27,10 +27,17 @@ app.post("/signup", async (req, resp) => {
     if (userData.email && userData.password) {
         const db = await connection();
         const collection = await db.collection('user');
+
+        // check if email already exists
+        const existing = await collection.findOne({ email: userData.email });
+        if (existing) {
+            return resp.send({ success: false, msg: 'Email already registered' });
+        }
+
         const result = await collection.insertOne(userData)
 
         if (result) {
-            jwt.sign(userData, 'Google', { expiresIn: '5d' }, (error, token) => {
+            jwt.sign(userData, JWT_SECRET, { expiresIn: '5d' }, (error, token) => {
                 resp.send({
                     success: true,
                     msg: 'Signup done',
@@ -40,20 +47,19 @@ app.post("/signup", async (req, resp) => {
         } else {
             resp.send({
                 success: false,
-                msg: 'User not found',
+                msg: 'Signup failed',
             })
         }
 
     } else {
         resp.send({
             success: false,
-            msg: 'Signup failed',
+            msg: 'Email and password required',
         })
     }
-
-
-    // Login
 })
+
+// Login
 app.post("/login", async (req, resp) => {
     const userData = req.body;
 
@@ -63,26 +69,25 @@ app.post("/login", async (req, resp) => {
         const result = await collection.findOne({ email: userData.email, password: userData.password })
 
         if (result) {
-        jwt.sign(userData, 'Google', { expiresIn: '5d' }, (error, token) => {
-            resp.send({ success: true, msg: 'Login done', token })
-        })
+            jwt.sign(userData, JWT_SECRET, { expiresIn: '5d' }, (error, token) => {
+                resp.send({ success: true, msg: 'Login done', token })
+            })
+        } else {
+            resp.send({ success: false, msg: 'Invalid email or password' })
+        }
     } else {
-        resp.send({ success: false, msg: 'Invalid email or password' }) // ✅ add this
+        resp.send({ success: false, msg: 'Email and password required' })
     }
-    }
-
-
-
 })
 
-app.post("/add-task",verify_JWT_Token, async (req, resp) => {
+app.post("/add-task", verify_JWT_Token, async (req, resp) => {
     const db = await connection();
     const collection = await db.collection(CollectionName)
     const result = await collection.insertOne(req.body)
     if (result) {
         resp.send({ message: "new task added", success: true, result })
     } else {
-        resp.send({ message: "task not  added", success: false })
+        resp.send({ message: "task not added", success: false })
     }
 })
 
@@ -93,15 +98,11 @@ app.get("/tasks", verify_JWT_Token, async (req, resp) => {
     if (result) {
         resp.send({ message: "task list fetched", success: true, result })
     } else {
-        resp.send({ message: "error try again after sametime", success: false })
+        resp.send({ message: "error try again after sometime", success: false })
     }
 })
 
-
-
-
-// ✅ fixed: changed /tasks/:id to /task/:id (matches frontend fetch)
-app.get("/task/:id",verify_JWT_Token, async (req, resp) => {
+app.get("/task/:id", verify_JWT_Token, async (req, resp) => {
     const db = await connection();
     const id = req.params.id
     const collection = await db.collection(CollectionName)
@@ -113,15 +114,14 @@ app.get("/task/:id",verify_JWT_Token, async (req, resp) => {
     }
 })
 
-// ✅ new: PUT route to update task by id
-app.put("/update-task/:id",verify_JWT_Token, async (req, resp) => {
+app.put("/update-task/:id", verify_JWT_Token, async (req, resp) => {
     const db = await connection();
     const id = req.params.id
-    const { title, description } = req.body // get updated fields from request body
+    const { title, description } = req.body
     const collection = await db.collection(CollectionName)
     const result = await collection.updateOne(
-        { _id: new ObjectId(id) },        // find task by id
-        { $set: { title, description } }  // update only title and description
+        { _id: new ObjectId(id) },
+        { $set: { title, description } }
     )
     if (result.modifiedCount > 0) {
         resp.send({ message: "task updated", success: true })
@@ -130,7 +130,7 @@ app.put("/update-task/:id",verify_JWT_Token, async (req, resp) => {
     }
 })
 
-app.delete("/delete/:id",verify_JWT_Token, async (req, resp) => {
+app.delete("/delete/:id", verify_JWT_Token, async (req, resp) => {
     const db = await connection();
     const id = req.params.id
     const collection = await db.collection(CollectionName)
@@ -138,44 +138,33 @@ app.delete("/delete/:id",verify_JWT_Token, async (req, resp) => {
     if (result) {
         resp.send({ message: "task deleted", success: true, result })
     } else {
-        resp.send({ message: "error try again after sametime", success: false })
+        resp.send({ message: "error try again after sometime", success: false })
     }
 })
 
-app.delete("/delete-multiple",verify_JWT_Token, async (req, resp) => {
+app.delete("/delete-multiple", verify_JWT_Token, async (req, resp) => {
     const db = await connection();
     const ids = req.body;
     const deleteTaskIds = ids.map((item) => new ObjectId(item))
-    console.log(ids);
-
     const collection = await db.collection(CollectionName)
     const result = await collection.deleteMany({ _id: { $in: deleteTaskIds } })
     if (result) {
-        resp.send({ message: "task deleted", success: result })
+        resp.send({ message: "tasks deleted", success: result })
     } else {
-        resp.send({ message: "error try again after sametime", success: false })
+        resp.send({ message: "error try again after sometime", success: false })
     }
 })
 
-
-
 function verify_JWT_Token(req, resp, next) {
-    // Read token from cookie (set by frontend via document.cookie)
     const token = req.cookies['token'];
 
     if (!token) {
-        return resp.send({
-            msg: "No token provided",
-            success: false
-        });
+        return resp.send({ msg: "No token provided", success: false });
     }
 
-    jwt.verify(token, 'Google', (error, decoded) => {
+    jwt.verify(token, JWT_SECRET, (error, decoded) => {
         if (error) {
-            return resp.send({
-                msg: "Invalid token",
-                success: false
-            });
+            return resp.send({ msg: "Invalid token", success: false });
         }
         req.user = decoded;
         next();
