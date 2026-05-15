@@ -36,7 +36,6 @@ const Navbar = () => {
       <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
 
         {/* Left Side */}
-        {/* Left Side */}
         <div className="flex flex-col leading-tight">
 
           {/* Large screen: ToDo App only */}
@@ -77,9 +76,9 @@ const Navbar = () => {
             {/* Add Task — visible on all screens */}
             <Link
               to="/add"
-              className="bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-md text-sm font-medium transition duration-200"
+              className=" hover:text-blue-400 text-sm font-medium transition duration-200"
             >
-              + Add Task
+             Add Task
             </Link>
 
             {/* Logout — large screen only */}
@@ -113,7 +112,7 @@ const Navbar = () => {
             onClick={() => setMenuOpen(false)}
             className="hover:text-blue-400 transition duration-200"
           >
-            📋 List
+           List
           </Link>
 
           {/* Logout inside hamburger — small screen only */}
@@ -121,7 +120,7 @@ const Navbar = () => {
             onClick={logout}
             className="md:hidden text-left text-red-400 hover:text-red-300 transition duration-200"
           >
-            🚪 Log out
+           Log out
           </button>
         </div>
       )}
