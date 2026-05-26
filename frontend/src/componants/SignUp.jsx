@@ -4,15 +4,17 @@ import { Link, useNavigate } from 'react-router-dom'
 const SignUp = () => {
 
     const [userData, setUserData] = useState();
+    const [loading, setLoading] = useState(false);
 
     const Navigate = useNavigate()
 
     useEffect(() => {
-        if (localStorage.getItem('login')) navigate('/')
+        if (localStorage.getItem('login')) Navigate('/')
     }, [])  // ✅ add empty array
 
     const handleSignUp = async () => {
         console.log("Trying to connect to:", import.meta.env.VITE_API_URL + '/signup',);
+        setLoading(true);
         try {
             let result = await fetch(import.meta.env.VITE_API_URL + '/signup', {
                 method: 'POST',
@@ -34,6 +36,8 @@ const SignUp = () => {
         } catch (error) {
             console.error("Signup error:", error.message); // ✅ shows exact error
             alert('Error: ' + error.message)              // ✅ shows in browser too
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -89,9 +93,20 @@ const SignUp = () => {
 
                     <button
                         onClick={() => handleSignUp()}
-                        className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-lg font-medium transition duration-200 cursor-pointer"
+                        disabled={loading}
+                        className="mt-2 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-400 text-white py-2.5 rounded-lg font-medium transition duration-200 cursor-pointer flex items-center justify-center gap-2"
                     >
-                        Sign Up
+                        {loading ? (
+                            <>
+                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Signing Up...
+                            </>
+                        ) : (
+                            "Sign Up"
+                        )}
                     </button>
                     <p className="text-center text-sm text-gray-600">
                         Already have an account?{" "}
