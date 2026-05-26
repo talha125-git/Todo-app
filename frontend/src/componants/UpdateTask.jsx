@@ -16,27 +16,43 @@ const UpdateTask = () => {
     }, [])
 
     const getTask = async (id) => {
-        let task = await fetch(import.meta.env.VITE_API_URL + '/task/' + id, {
-            credentials: 'include',
-            headers: { 'Authorization': 'Bearer ' + getToken() }
-        });
-        task = await task.json()
-        if (task.success) setTaskData(task.result)
+        try {
+            let task = await fetch(import.meta.env.VITE_API_URL + '/task/' + id, {
+                credentials: 'include',
+                headers: { 'Authorization': 'Bearer ' + getToken() }
+            });
+            task = await task.json()
+            if (task.success) {
+                setTaskData(task.result)
+            } else {
+                alert(task.msg || task.message || "Failed to fetch task");
+            }
+        } catch (error) {
+            console.error("Get task error:", error);
+            alert("Could not connect to server");
+        }
     }
 
     const handleUpdate = async () => {
-        let result = await fetch(import.meta.env.VITE_API_URL + '/update-task/' + id, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + getToken()
-            },
-            credentials: 'include',
-            body: JSON.stringify(taskData)
-        });
-        result = await result.json();
-        if (result.success) {
-            navigate('/');
+        try {
+            let result = await fetch(import.meta.env.VITE_API_URL + '/update-task/' + id, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + getToken()
+                },
+                credentials: 'include',
+                body: JSON.stringify(taskData)
+            });
+            result = await result.json();
+            if (result.success) {
+                navigate('/');
+            } else {
+                alert(result.msg || result.message || "Failed to update task");
+            }
+        } catch (error) {
+            console.error("Update task error:", error);
+            alert("Could not connect to server");
         }
     }
 

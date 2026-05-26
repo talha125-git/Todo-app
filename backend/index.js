@@ -182,6 +182,18 @@ function verify_JWT_Token(req, resp, next) {
     });
 }
 
+// Global error handler middleware
+app.use((err, req, resp, next) => {
+    console.error("❌ Unhandled server error:", err);
+    resp.status(500).send({
+        success: false,
+        msg: "An unexpected database or server error occurred",
+        error: err.message
+    });
+});
+
 app.listen(3200, () => {
     console.log('✅ Backend server running on http://localhost:3200');
 })
+
+export default app;

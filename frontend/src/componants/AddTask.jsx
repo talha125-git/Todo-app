@@ -10,20 +10,25 @@ const AddTask = () => {
     const navigate = useNavigate();
 
     const HanddleAddTask = async () => {
-        let result = await fetch(import.meta.env.VITE_API_URL + '/add-task', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + getToken()
-            },
-            credentials: 'include',
-            body: JSON.stringify(taskData)
-        })
-        result = await result.json()
-        if (result.success) {
-            navigate('/')
-        } else {
-            alert('Try after Sometime')
+        try {
+            let result = await fetch(import.meta.env.VITE_API_URL + '/add-task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + getToken()
+                },
+                credentials: 'include',
+                body: JSON.stringify(taskData)
+            })
+            result = await result.json()
+            if (result.success) {
+                navigate('/')
+            } else {
+                alert(result.msg || result.message || 'Try after Sometime')
+            }
+        } catch (error) {
+            console.error("Add task error:", error);
+            alert("Could not connect to server");
         }
     }
 

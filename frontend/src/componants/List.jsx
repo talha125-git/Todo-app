@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const getToken = () => localStorage.getItem('authToken')
 
@@ -7,35 +7,53 @@ const List = () => {
 
     const [taskData, setTaskData] = useState([]);
     const [selectedTask, setSelectedTask] = useState([])
+    const navigate = useNavigate();
 
     useEffect(() => {
         getListData();
     }, []);
 
     const getListData = async () => {
-        let list = await fetch(import.meta.env.VITE_API_URL + '/tasks', {
-            credentials: 'include',
-            headers: { 'Authorization': 'Bearer ' + getToken() }
-        });
-        list = await list.json();
-        if (list.success) {
-            setTaskData(list.result);
-        } else {
-            alert("Try after sometime")
+        try {
+            let list = await fetch(import.meta.env.VITE_API_URL + '/tasks', {
+                credentials: 'include',
+                headers: { 'Authorization': 'Bearer ' + getToken() }
+            });
+            list = await list.json();
+            if (list.success) {
+                setTaskData(list.result);
+            } else {
+                alert(list.msg || list.message || "Try after sometime");
+                if (list.msg === "Invalid token" || list.msg === "No token provided") {
+                    localStorage.removeItem('login');
+                    localStorage.removeItem('userName');
+                    localStorage.removeItem('authToken');
+                    window.dispatchEvent(new Event('localStorage-change'));
+                    navigate('/login');
+                }
+            }
+        } catch (error) {
+            console.error("Fetch tasks error:", error);
+            alert("Could not connect to server");
         }
     };
 
     const deleteTask = async (id) => {
-        let item = await fetch(import.meta.env.VITE_API_URL + '/delete/' + id, {
-            method: 'delete',
-            credentials: 'include',
-            headers: { 'Authorization': 'Bearer ' + getToken() }
-        });
-        item = await item.json();
-        if (item.success) {
-            getListData();
-        } else {
-            alert("Try after sometime")
+        try {
+            let item = await fetch(import.meta.env.VITE_API_URL + '/delete/' + id, {
+                method: 'delete',
+                credentials: 'include',
+                headers: { 'Authorization': 'Bearer ' + getToken() }
+            });
+            item = await item.json();
+            if (item.success) {
+                getListData();
+            } else {
+                alert(item.msg || item.message || "Try after sometime");
+            }
+        } catch (error) {
+            console.error("Delete task error:", error);
+            alert("Could not connect to server");
         }
     };
 
@@ -58,20 +76,25 @@ const List = () => {
     }
 
     const DeleteMultiple = async () => {
-        let item = await fetch(import.meta.env.VITE_API_URL + '/delete-multiple', {
-            credentials: 'include',
-            method: 'delete',
-            body: JSON.stringify(selectedTask),
-            headers: {
-                'Content-Type': 'Application/Json',
-                'Authorization': 'Bearer ' + getToken()
+        try {
+            let item = await fetch(import.meta.env.VITE_API_URL + '/delete-multiple', {
+                credentials: 'include',
+                method: 'delete',
+                body: JSON.stringify(selectedTask),
+                headers: {
+                    'Content-Type': 'Application/Json',
+                    'Authorization': 'Bearer ' + getToken()
+                }
+            });
+            item = await item.json();
+            if (item.success) {
+                getListData();
+            } else {
+                alert(item.msg || item.message || "Try after sometime");
             }
-        });
-        item = await item.json();
-        if (item.success) {
-            getListData();
-        } else {
-            alert("Try after sometime")
+        } catch (error) {
+            console.error("Delete multiple tasks error:", error);
+            alert("Could not connect to server");
         }
     }
 
